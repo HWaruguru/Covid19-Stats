@@ -73,7 +73,7 @@ def create_post(public_id):
     user = User.query.filter_by(public_id = public_id).first()
     if user:
         data = request.get_json()
-        new_post = Covid(country = data['country'],cases = data['cases'],date_created = data['date_created'],user_id = data['user_id'])
+        new_post = Covid(country = data['country'],cases = data['cases'],tests = data['tests'],deaths = data['deaths'],recovered = data['recovered'],date_created = data['date_created'],user_id = data['user_id'])
         db.session.add(new_post)
         db.session.commit()
         return jsonify({'message': 'new covid post created!'}) 
@@ -87,6 +87,9 @@ def get_all_posts():
         post_data = {}
         post_data['country'] = post.country
         post_data['cases'] = post.cases
+        post_data['tests'] = post.tests
+        post_data['deaths'] = post.deaths
+        post_data['recovered'] = post.recovered
         post_data['date_created'] = post.date_created
         post_data['user_id'] = post.user_id
 
@@ -103,16 +106,20 @@ def get_one_user_post(user_id):
     post_data = {}
     post_data['country'] = post.country
     post_data['cases'] = post.cases
+    post_data['tests'] = post.tests
+    post_data['deaths'] = post.deaths
+    post_data['recovered'] = post.recovered
     post_data['date_created'] = post.date_created
+    post_data['user_id'] = post.user_id
 
     return jsonify({'user_posts' : post_data})     
     
 
-@main.route('/user/<user_id>',methods = ['DELETE'])
+@main.route('/user/post/<user_id>',methods = ['DELETE'])
 def delete_post(user_id):
     post = Covid.query.filter_by(user_id = user_id).first()
     if not post:
-        return jsonify({'message' : 'No user found!'})
+        return jsonify({'message' : 'No post found!'})
     db.session.delete(post)
     db.session.commit()    
     return jsonify({'message' : 'Post has been deleted'})    
@@ -128,3 +135,4 @@ def update_post(public_id):
         db.session.commit()
         return jsonify({'message': 'covid post successfully updated!'}) 
     return jsonify({'message' : 'No user found!'})
+

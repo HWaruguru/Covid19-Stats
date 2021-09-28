@@ -1,3 +1,4 @@
+from enum import unique
 from . import db
 from flask_login import UserMixin
 from sqlalchemy.sql import func
@@ -14,11 +15,9 @@ class Covid(db.Model):
     __tablename__ = 'statistics'
     id = db.Column(db.Integer,primary_key = True)  
     country = db.Column(db.String(50))
-    cases = db.Column(db.String(50))
+    cases = db.Column(db.String(50000))
+    tests = db.Column(db.String(50000))
+    deaths = db.Column(db.String(50000))
+    recovered = db.Column(db.String(50000))
     date_created = db.Column(db.DateTime(timezone =True),default = func.now())
-    user_id = db.Column(db.Integer,db.ForeignKey('user.id',ondelete = 'CASCADE'),nullable = False)
-
-
-
-
-    
+    user_id = db.Column(db.Integer,db.ForeignKey('user.id',ondelete = 'CASCADE'),nullable = False,unique = True)
