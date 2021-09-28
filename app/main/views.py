@@ -1,7 +1,7 @@
 from . import main
 from flask import request,jsonify,make_response
 from werkzeug.security import generate_password_hash,check_password_hash
-from ..models import User,Covid
+from ..models import User,Covid,Comment
 import uuid
 from .. import db
 
@@ -136,3 +136,48 @@ def update_post(public_id):
         return jsonify({'message': 'covid post successfully updated!'}) 
     return jsonify({'message' : 'No user found!'})
 
+@main.route('/user/<public_id>/post/comment',methods = ['POST'])
+def create_comment(public_id):
+    user = User.query.filter_by(public_id = public_id).first()
+    if user:
+        data = request.get_json()
+        new_comment = Comment(text = data['text'],date_created = data['date_created'],author = data['author'])
+        db.session.add(new_comment)
+        db.session.commit()
+        return jsonify({'message': 'new comment posted'}) 
+    return jsonify({'message' : 'No user found!'})
+
+@main.route('/user/post/comment', methods = ['GET'])
+def get_all_comments():
+    comments = Comment.query.all()
+    output = []
+    for comment in comments:
+        comment_data = {}
+        comment_data['text'] = comment.text
+        comment_data['date_created'] = comment.date_created
+        comment_data['author'] = comment.author
+
+        output.append(comment_data)
+
+    return jsonify({'comments' : output})   
+
+
+@main.route('/user/post/comment/<author>', methods = ['GET'])
+def get_single_comment(author):
+    comment = Comment.query.filter_by(author=author).first()
+    if not comment:
+        return jsonify({'message' : 'No post found!'})    
+    comment_data = {}
+    comment_data['text'] = comment.text
+    comment_data['date_created'] = comment.date_created
+
+    return jsonify({'user_comment' : comment_data})     
+
+@main.route('/user/post/comment/<author>',methods = ['DELETE'])
+def delete_comment(author):
+    comment = Comment.query.filter_by(author = author).first()
+    if not comment:
+        return jsonify({'message' : 'No comment found!'})
+    db.session.delete(comment)
+    db.session.commit()    
+    return jsonify({'message' : 'Comment has been deleted'})    
