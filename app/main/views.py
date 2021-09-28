@@ -62,10 +62,10 @@ def login():
     user = User.query.filter_by(name = auth.username).first()  
 
     if not user:
-        return jsonify({'message' : 'could not verify please recheck username or password'})    
+        return jsonify({'message' : 'user not found!'})    
     if check_password_hash(user.password , auth.password): 
         return jsonify ({'message' : 'Login successful!'})
-    return jsonify({'message' : 'wrong username or password!'})    
+    return jsonify({'message' : 'wrong password!'})    
 
 @main.route('/user/<public_id>/post',methods = ['POST'])
 def create_post(public_id):
@@ -93,9 +93,10 @@ def get_all_posts():
 
     return jsonify({'posts' : output})   
 
-@main.route('/user/<id>/post', methods = ['GET'])
-def get_one_userpost(id):
-    post = Covid.query.filter_by(id = id).first()
+@main.route('/user/<user_id>/post', methods = ['GET'])
+def get_one_user_post(user_id):
+    
+    post = Covid.query.filter_by(user_id = user_id).first()
     if not post:
         return jsonify({'message' : 'No post found!'})
     post_data = {}
@@ -103,7 +104,7 @@ def get_one_userpost(id):
     post_data['cases'] = post.cases
     post_data['date_created'] = post.date_created
 
-    return jsonify({'post' : post_data})     
+    return jsonify({'user_posts' : post_data})     
     
 
 @main.route('/user/<user_id>',methods = ['DELETE'])
@@ -130,6 +131,9 @@ def update_post(public_id):
      
     
            
+
+#  {"country" : "Nigeria" , "cases" : "250","date_created" : "22-12-2018","user_id" : "2"}
+# {"name" : "Dollar" , "password" :"dollar"}
 
 
                
