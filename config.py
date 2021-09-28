@@ -6,7 +6,7 @@ class Config:
     
     '''
 
-    SQLALCHEMY_TRACK_MODIFICATIONS = True
+    SQLALCHEMY_TRACK_MODIFICATIONS = False
     SECRET_KEY = os.urandom(32)
     SQLALCHEMY_DATABASE_URI = 'postgresql+psycopg2://postgres:postgres@localhost/create_api'
 
