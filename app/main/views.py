@@ -67,6 +67,7 @@ def login():
         return jsonify ({'message' : 'Login successful!'})
     return jsonify({'message' : 'wrong password!'})    
 
+
 @main.route('/user/<public_id>/post',methods = ['POST'])
 def create_post(public_id):
     user = User.query.filter_by(public_id = public_id).first()
@@ -87,7 +88,7 @@ def get_all_posts():
         post_data['country'] = post.country
         post_data['cases'] = post.cases
         post_data['date_created'] = post.date_created
-        # post_data['user_id'] = post.user_id
+        post_data['user_id'] = post.user_id
 
         output.append(post_data)
 
@@ -127,13 +128,3 @@ def update_post(public_id):
         db.session.commit()
         return jsonify({'message': 'covid post successfully updated!'}) 
     return jsonify({'message' : 'No user found!'})
-
-     
-    
-           
-
-#  {"country" : "Nigeria" , "cases" : "250","date_created" : "22-12-2018","user_id" : "2"}
-# {"name" : "Dollar" , "password" :"dollar"}
-
-
-               
