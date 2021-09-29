@@ -7,7 +7,8 @@ class User(db.Model,UserMixin):
     id = db.Column(db.Integer,primary_key = True)
     public_id = db.Column(db.String(50),unique = True)
     name = db.Column(db.String(50))
-    password = db.Column(db.String(80))    
+    password = db.Column(db.String(80))  
+    email = db.Column(db.String(255),unique = True,index = True)  
     covid_posts = db.relationship('Covid',backref = 'user',passive_deletes = True)
     comments = db.relationship('Comment', backref='user', passive_deletes=True)
 
