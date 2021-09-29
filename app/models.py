@@ -23,13 +23,15 @@ class Covid(db.Model):
     tests = db.Column(db.String(50000))
     deaths = db.Column(db.String(50000))
     recovered = db.Column(db.String(50000))
-    date_created = db.Column(db.DateTime(timezone =True),default = func.now())
+    date_created = db.Column(db.String(50))
     user_id = db.Column(db.Integer,db.ForeignKey('user.id',ondelete = 'CASCADE'),nullable = False)
+    comments = db.relationship('Comment', backref='covid', passive_deletes=True)
 
 class Comment(db.Model):
     __tablename__ = 'comments'
     id = db.Column(db.Integer,primary_key = True)
     text = db.Column(db.String(200),nullable = False)
-    date_created = db.Column(db.DateTime(timezone =True),default = func.now())
+    date_created = db.Column(db.String(50))
     author = db.Column(db.Integer,db.ForeignKey('user.id',ondelete = 'CASCADE'),nullable = False)
+    post = db.Column(db.Integer,db.ForeignKey('covid.id', ondelete = 'CASCADE'),nullable = False)
 
