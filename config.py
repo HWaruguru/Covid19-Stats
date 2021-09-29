@@ -8,7 +8,7 @@ class Config:
 
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     SECRET_KEY = 'kfgkgkjlkndlclkdslkcndslkvndsvdvuds'
-    SQLALCHEMY_DATABASE_URI = 'postgresql+psycopg2://postgres:postgres@localhost/created_api'
+    SQLALCHEMY_DATABASE_URI = 'postgresql+psycopg2://hannahnjoroge:password@localhost/covidstats'
 
 
 class ProdConfig(Config):
