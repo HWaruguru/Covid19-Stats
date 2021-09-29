@@ -5,7 +5,7 @@ from app.models import User,Covid,Comment
 
 
 # creating app instance
-app = create_app('development')
+app = create_app('production')
 
 migrate = Migrate(app,db)
 manager = Manager(app)
