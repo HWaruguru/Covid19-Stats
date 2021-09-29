@@ -30,4 +30,3 @@ class Comment(db.Model):
     date_created = db.Column(db.DateTime(timezone =True),default = func.now())
     author = db.Column(db.Integer,db.ForeignKey('user.id',ondelete = 'CASCADE'),nullable = False)
 
-# {"country" : "Angola" ,"cases" : "580" , "tests" : "3024", "deaths" : "12" , "recovered" : "85" , "date_created" : "28-09-2021","user_id" : "2"}
