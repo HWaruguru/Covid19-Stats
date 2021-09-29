@@ -4,7 +4,6 @@ from werkzeug.security import generate_password_hash,check_password_hash
 from ..models import User,Covid,Comment
 import uuid
 from .. import db
-from flask_login import logout_user
 
 
 @main.route('/user', methods = ['GET'])
@@ -72,12 +71,6 @@ def login():
         return jsonify ({'message' : 'Login successful!'})
     return jsonify({'message' : 'wrong password!'})    
 
-
-
-@main.route('/logout')
-def logout():
-    logout_user()
-    return jsonify({'message' : 'User has been logged out'})    
 
 
 @main.route('/user/<public_id>/post',methods = ['POST'])
