@@ -4,10 +4,35 @@ from werkzeug.security import generate_password_hash,check_password_hash
 from ..models import User,Covid,Comment
 import uuid
 from .. import db
+import jwt
+import datetime
+from functools import wraps
+
+SECRET_KEY  =  'kfgkgkjlkndlclkdslkcndslkvndsvdvuds'
+
+def token_required(f):
+    @wraps(f)
+    def decorated(*args,**kwargs):#arbitrary functions 
+        token = None
+        if 'x-access-token' in request.headers:
+            token = request.headers['x-access-token']
+        if not token:    
+            return jsonify({'message' : 'Token is missing'}),401
+
+        try:
+            data = jwt.decode(token,SECRET_KEY,algorithms=["HS256"])
+            current_user = User.query.filter_by(public_id = data['public_id']).first() 
+        except: 
+            return jsonify({'message' : 'Token is invalid!'}),401
+        return f(current_user,*args, **kwargs)    
+    return decorated    
 
 
 @main.route('/user', methods = ['GET'])
-def get_all_users():
+@token_required
+def get_all_users(current_user):
+    if not current_user:
+        return jsonify ({'message' : 'cannot perfom that function!'})
     users = User.query.all()
     output = []
     for user in users:
@@ -22,7 +47,10 @@ def get_all_users():
     return jsonify({'users' : output})
 
 @main.route('/user/<public_id>', methods = ['GET'])
-def get_one_user(public_id):
+@token_required
+def get_one_user(current_user,public_id):
+    if not current_user:
+        return jsonify ({'message' : 'cannot perfom that function!'})
     user = User.query.filter_by(public_id = public_id).first()
     if not user:
         return jsonify({'message' : 'No user found!'})
@@ -48,7 +76,12 @@ def create_user():
 
 
 @main.route('/user/<public_id>',methods = ['DELETE'])
-def delete_user(public_id):
+@token_required
+
+
+def delete_user(current_user,public_id):
+    if not current_user:
+        return jsonify ({'message' : 'cannot perfom that function!'})
     user = User.query.filter_by(public_id = public_id).first()
     if not user:
         return jsonify({'message' : 'No user found!'})
@@ -68,13 +101,19 @@ def login():
     if not user:
         return jsonify({'message' : 'user not found!'})    
     if check_password_hash(user.password , auth.password): 
-        return jsonify ({'message' : 'Login successful!'})
-    return jsonify({'message' : 'wrong password!'})    
+        token = jwt.encode({'public_id' : user.public_id, 'exp' :  datetime.datetime.utcnow() + datetime.timedelta(minutes = 180)},SECRET_KEY)
+
+        return jsonify ({'token' : token})
+    return jsonify({'message' : 'wrong password or username!'})    
 
 
 
 @main.route('/user/<public_id>/post',methods = ['POST'])
-def create_post(public_id):
+@token_required
+
+def create_post(current_user,public_id):
+    if not current_user:
+        return jsonify ({'message' : 'cannot perfom that function!'})
     user = User.query.filter_by(public_id = public_id).first()
     if user:
         data = request.get_json()
@@ -85,7 +124,11 @@ def create_post(public_id):
     return jsonify({'message' : 'No user found!'})
 
 @main.route('/user/post', methods = ['GET'])
-def get_all_posts():
+@token_required
+
+def get_all_posts(current_user):
+    if not current_user:
+        return jsonify ({'message' : 'cannot perfom that function!'})
     posts = Covid.query.all()
     output = []
     for post in posts:
@@ -103,7 +146,11 @@ def get_all_posts():
     return jsonify({'posts' : output})   
 
 @main.route('/user/<user_id>/post', methods = ['GET'])
-def get_one_user_post(user_id):
+@token_required
+
+def get_one_user_post(current_user,user_id):
+    if not current_user:
+        return jsonify ({'message' : 'cannot perfom that function!'})
     
     post = Covid.query.filter_by(user_id = user_id).first()
     if not post:
@@ -121,7 +168,11 @@ def get_one_user_post(user_id):
     
 
 @main.route('/user/post/<user_id>',methods = ['DELETE'])
-def delete_post(user_id):
+@token_required
+
+def delete_post(current_user,user_id):
+    if not current_user:
+        return jsonify ({'message' : 'cannot perfom that function!'})
     post = Covid.query.filter_by(user_id = user_id).first()
     if not post:
         return jsonify({'message' : 'No post found!'})
@@ -131,7 +182,11 @@ def delete_post(user_id):
 
 
 @main.route('/user/<public_id>/post',methods = ['PUT'])
-def update_post(public_id):
+@token_required
+
+def update_post(current_user,public_id):
+    if not current_user:
+        return jsonify ({'message' : 'cannot perfom that function!'})
     user = User.query.filter_by(public_id = public_id).first()
     if user:
         data = request.get_json()
@@ -142,7 +197,11 @@ def update_post(public_id):
     return jsonify({'message' : 'No user found!'})
 
 @main.route('/user/<public_id>/post/comment',methods = ['POST'])
-def create_comment(public_id):
+@token_required
+
+def create_comment(current_user,public_id):
+    if not current_user:
+        return jsonify ({'message' : 'cannot perfom that function!'})
     user = User.query.filter_by(public_id = public_id).first()
     if user:
         data = request.get_json()
@@ -153,7 +212,11 @@ def create_comment(public_id):
     return jsonify({'message' : 'No user found!'})
 
 @main.route('/user/post/comment', methods = ['GET'])
-def get_all_comments():
+@token_required
+
+def get_all_comments(current_user):
+    if not current_user:
+        return jsonify ({'message' : 'cannot perfom that function!'})
     comments = Comment.query.all()
     output = []
     for comment in comments:
@@ -168,7 +231,11 @@ def get_all_comments():
 
 
 @main.route('/user/post/comment/<author>', methods = ['GET'])
-def get_single_comment(author):
+@token_required
+
+def get_single_comment(current_user,author):
+    if not current_user:
+        return jsonify ({'message' : 'cannot perfom that function!'})
     comment = Comment.query.filter_by(author=author).first()
     if not comment:
         return jsonify({'message' : 'No post found!'})    
@@ -179,7 +246,11 @@ def get_single_comment(author):
     return jsonify({'user_comment' : comment_data})     
 
 @main.route('/user/post/comment/<author>',methods = ['DELETE'])
-def delete_comment(author):
+@token_required
+
+def delete_comment(current_user,author):
+    if not current_user:
+        return jsonify ({'message' : 'cannot perfom that function!'})
     comment = Comment.query.filter_by(author = author).first()
     if not comment:
         return jsonify({'message' : 'No comment found!'})
