@@ -7,7 +7,7 @@ class Config:
     '''
 
     SQLALCHEMY_TRACK_MODIFICATIONS = False
-    SQLALCHEMY_DATABASE_URI = 'postgresql+psycopg2://postgres:postgres@localhost/created_api'
+    # SQLALCHEMY_DATABASE_URI = 'postgresql+psycopg2://postgres:postgres@localhost/created_api'
 
     SECRET_KEY = 'kfgkgkjlkndlclkdslkcndslkvndsvdvuds'
 
