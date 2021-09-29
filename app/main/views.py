@@ -38,9 +38,7 @@ def get_one_user(public_id):
 @main.route('/user', methods = ['POST'])
 def create_user():
     data = request.get_json()
-
     hashed_password = generate_password_hash(data['password'],method='sha256')
-
     new_user = User(public_id = str(uuid.uuid4()),name = data['name'],password = hashed_password,email = data['email'])
     db.session.add(new_user)
     db.session.commit()
@@ -57,19 +55,20 @@ def delete_user(public_id):
     return jsonify({'message' : 'User has been deleted'})    
 
 
-@main.route('/login')     
+@main.route('/login', methods = ['POST'])   
 def login():
-    auth = request.authorization
-    if not auth or not auth.username or not auth.password:
-        return make_response('Could not verify', 401,{'WWW-Authenticate' : 'Basic realm = "Login required!"'})
+    data = request.get_json()
 
-    user = User.query.filter_by(name = auth.username).first()  
+    if not data or not data["email"] or not data["password"]:
+        return make_response('Missing email or password fields', 401, {'WWW-Authenticate' : 'Basic realm = "Login required!"'})
+
+    user = User.query.filter_by(email = data["email"]).first()  
 
     if not user:
-        return jsonify({'message' : 'user not found!'})    
-    if check_password_hash(user.password , auth.password): 
-        return jsonify ({'message' : 'Login successful!'})
-    return jsonify({'message' : 'wrong password!'})    
+        return jsonify({'message' : 'Wrong email or password'}), 401
+    if check_password_hash(user.password , data["password"]):
+        return jsonify ({'message' : 'Login successful!', "user": user.as_dict()}), 200
+    return jsonify({'message' : 'Wrong email or password'}), 401
 
 
 
@@ -78,7 +77,7 @@ def create_post(public_id):
     user = User.query.filter_by(public_id = public_id).first()
     if user:
         data = request.get_json()
-        new_post = Covid(country = data['country'],cases = data['cases'],tests = data['tests'],deaths = data['deaths'],recovered = data['recovered'],date_created = data['date_created'],user_id = data['user_id'])
+        new_post = Covid(country = data['country'],cases = data['cases'],tests = data['tests'],deaths = data['deaths'],recovered = data['recovered'],date_created = data['date_created'],user_id = user.id)
         db.session.add(new_post)
         db.session.commit()
         return jsonify({'message': 'new covid post created!'}) 
