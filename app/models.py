@@ -8,12 +8,12 @@ class User(db.Model,UserMixin):
     public_id = db.Column(db.String(50),unique = True)
     name = db.Column(db.String(50))
     password = db.Column(db.String(80))  
-    email = db.Column(db.String(255),unique = True,index = True)  
-    covid_posts = db.relationship('Covid',backref = 'user',passive_deletes = True)
+    email = db.Column(db.String(255),unique = True)  
+    covid = db.relationship('Covid',backref = 'user',passive_deletes = True)
     comments = db.relationship('Comment', backref='user', passive_deletes=True)
 
 class Covid(db.Model):
-    __tablename__ = 'statistics'
+    __tablename__ = 'covid'
     id = db.Column(db.Integer,primary_key = True)  
     country = db.Column(db.String(50))
     cases = db.Column(db.String(50000))
